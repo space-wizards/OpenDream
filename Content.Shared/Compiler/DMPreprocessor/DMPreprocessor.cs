@@ -25,8 +25,12 @@ namespace Content.Shared.Compiler.DMPreprocessor {
             _enableDirectives = enableDirectives;
         }
 
+        private static string SanitizeSlashes(string path) {
+            return path.Replace('\\', Path.DirectorySeparatorChar);
+        }
+
         public void IncludeFile(string includePath, string file) {
-            file = file.Replace('\\', Path.DirectorySeparatorChar);
+            file = SanitizeSlashes(file);
             string source = File.ReadAllText(Path.Combine(includePath, file));
             source = source.Replace("\r\n", "\n");
             source += '\n';
@@ -43,6 +47,7 @@ namespace Content.Shared.Compiler.DMPreprocessor {
                         if (includedFileToken.Type != TokenType.DM_Preproc_ConstantString) throw new Exception("\"" + includedFileToken.Text + "\" is not a valid include path");
 
                         string includedFile = (string)includedFileToken.Value;
+                        includedFile = SanitizeSlashes(includedFile);
                         string includedFileExtension = Path.GetExtension(includedFile);
                         string fullIncludePath = Path.Combine(Path.GetDirectoryName(file), includedFile);
 
